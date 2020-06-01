@@ -1,7 +1,9 @@
 from selenium import webdriver
+import json
+from datetime import datetime
 
 class FiiCrowler:
-    def __init__(self, timeout=20):
+    def __init__(self, timeout=30):
         op = webdriver.ChromeOptions()
         op.add_argument('headless')
         op.add_argument('--no-sandbox')
@@ -16,7 +18,8 @@ class FiiCrowler:
     def getAll(self):
         self.driver.get("https://fiis.com.br/lista-de-fundos-imobiliarios/")
         item_list = self.driver.find_element_by_id('items-wrapper')
-        return [i.find_element_by_tag_name('a').get_attribute('href') for i in item_list.find_elements_by_class_name('item')]
+        return [i.find_element_by_tag_name('a').get_attribute('href') for i in
+        item_list.find_elements_by_class_name('item')]
 
     def getTV(self, e):
         try:
@@ -53,6 +56,19 @@ class FiiCrowler:
             'quotation': self.toFloat(value.text)
         }
 
+    def getLastRevenues(self):
+        t = self.driver.find_element_by_id('last-revenues--table')
+        tbody = t.find_element_by_tag_name('tbody')
+        revenues = []
+        for row in tbody.find_elements_by_tag_name('tr'):
+            colums = [c.text for c in row.find_elements_by_tag_name('td')]
+            revenues.append({
+                'dt': colums[1],
+                'quotation': self.toFloat(colums[2]),
+                'revenue': self.toFloat(colums[4])
+            })
+        return {'revenues': revenues}
+
     def clean(self, ofii):
         fii = {k.replace(' ', '').lower(): v for k,v in ofii.items()}
         fii[u'cotas'] = self.toInt(fii[u'númerodecotas'])
@@ -67,6 +83,7 @@ class FiiCrowler:
         return fii
 
     def getDetail(self, fii_url):
+        print('Getting Details for {0}'.format(fii_url))
         self.driver.get(fii_url)
         fii = {}
         fii['id'] = self.driver.find_element_by_id('fund-ticker').text
@@ -75,9 +92,20 @@ class FiiCrowler:
         fii.update(self.getExtraInfo())
         fii.update(self.getInfo('informations--indexes'))
         fii.update(self.getQuotationInfo())
+        fii.update(self.getLastRevenues())
         return self.clean(fii)
 
+def readFromFile(filename):
+    with open(filename, 'r') as f:
+        return json.loads(f.read())
+
+def saveToFile(filename, fiis):
+    with open(filename, 'w') as f:
+        f.write(json.dumps(fiis))
+
 fc = FiiCrowler()
-for fii in fc.getAll():
-    print(fc.getDetail(fii))
-    break
+filename = 'crowledfiis.json'
+fiis = readFromFile(filename)
+print(fiis)
+fiis[datetime.now().isoformat()] = {fii: fc.getDetail(fii) for fii in fc.getAll()}
+saveToFile(filename, fiis)

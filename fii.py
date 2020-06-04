@@ -1,9 +1,12 @@
 from optparse import OptionParser
 from FiiCrowler import FiiCrowler
 from FiiDb import FiiPostgres
-from Types import Fii, Rendimento, Error
+from Types import Fii, Rendimento, Error, Report
+from FiiEmail import FiiEmail
 from datetime import datetime
 import logging
+
+logger = logging.getLogger(__name__)
 
 def getOnline(db):
     fc = FiiCrowler()
@@ -42,6 +45,14 @@ def getOnline(db):
                 r.rendimento = rendimento['revenue']
                 db.insertRendimento(fiiid, r)
 
+def makeReport(db):
+    logger.info('Making The Report')
+    r = Report()
+    r.erros = db.getErrors()
+    r.subtipos = db.getSubtipos()
+    r.recomendacoes = db.getRecomendacoes()
+    return r
+
 def buildOptParser():
     parser = OptionParser('usage: %prog [options]')
     parser.add_option('--log', dest='loglevel', default='ERROR', 
@@ -57,11 +68,24 @@ def buildOptParser():
     return parser
 
 if __name__ == '__main__':
-    parser = buildOptParser()
-    (opt, args) = parser.parse_args()
-
-    logging.basicConfig(level=getattr(logging, opt.loglevel.upper()))
-
-    db = FiiPostgres(opt.dbconn)
-    if opt.online: getOnline(db)
+    try:
+        # Command line arguments
+        parser = buildOptParser()
+        (opt, args) = parser.parse_args()
+        # logging
+        logging.basicConfig(level=getattr(logging, opt.loglevel.upper()))
+        # Database 
+        db = FiiPostgres(opt.dbconn)
+        # Crowler from internet
+        if opt.online: getOnline(db)
+        # Report
+        report = makeReport(db)
+        # Show
+        if opt.email:
+            fe = FiiEmail('lucio.m.prado@hotmail.com', 'Suntech03;', opt.email)
+            fe.send(report)
+        else:
+            print(report)
+    except Exception as error:
+        print('Error: {0}'.format(str(error)))
 

@@ -30,3 +30,12 @@ class Error:
         self.codigoexec = None
         self.codigo = None
         self.msg = None
+
+class Report:
+    def __init__(self):
+        self.erros = None
+        self.erroshdr = ['Erro', 'Qnt', 'Codigo']
+        self.subtipos = None
+        self.subtiposhdr = ['Setor', 'Qnt', 'DY', 'DY 10M', 'P/VPA']
+        self.recomendacoes = None
+        self.recomendacoeshdr = ['Codigo', 'Tipo', 'Setor', 'DY', 'DY 10M', 'P/VPA', 'Link', 'Nota']

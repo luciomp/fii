@@ -173,7 +173,7 @@ class FiiPostgres:
                 ) t2 on fii.id = fiiid
                 where
                     codigoexec = (select max(codigoexec) from fii) and
-                    /* tipo <> 'papel' and */
+                    tipo <> 'papel' and 
                     subtipo <> 'desenvolvimento' and
                     mdtpgto > now() - interval '10 months' and 
                     dya >= 7 and 

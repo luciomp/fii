@@ -2,19 +2,27 @@ from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import logging
 from datetime import datetime
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
 logger = logging.getLogger(__name__)
+TIMEOUT = 45
+
+def GET(e, by, l):
+    w = WebDriverWait(e, TIMEOUT)
+    return w.until(EC.presence_of_element_located((by, l)))
 
 class FiiCrowler:
-    def __init__(self, timeout=30):
+    def __init__(self):
         op = webdriver.ChromeOptions()
         op.add_argument('headless')
         op.add_argument('--no-sandbox')
         caps = DesiredCapabilities().CHROME
         caps["pageLoadStrategy"] = "eager"
         self.driver = webdriver.Chrome(options=op, desired_capabilities=caps)
-        self.driver.set_page_load_timeout(timeout)
-        self.driver.implicitly_wait(1)
+        self.driver.set_page_load_timeout(TIMEOUT)
+        self.driver.implicitly_wait(5)
 
     def __del__(self):
         self.driver.close()
@@ -23,7 +31,8 @@ class FiiCrowler:
         logger.info('Getting Fiis')
         try:
             self.driver.get("https://fiis.com.br/lista-de-fundos-imobiliarios/")
-            item_list = self.driver.find_element_by_id('items-wrapper')
+            item_list = GET(self.driver, By.ID, 'items-wrapper') 
+            #item_list = self.driver.find_element_by_id('items-wrapper')
             return [(i.find_element_by_class_name('ticker').text,
                 i.find_element_by_tag_name('a').get_attribute('href')) 
                 for i in item_list.find_elements_by_class_name('item')]
@@ -35,7 +44,7 @@ class FiiCrowler:
         try:
             return e.find_element_by_class_name('title').text, e.find_element_by_class_name('value').text
         except Exception as error:
-            logger.error('Error getting TV: {0}'.format(str(error)))
+            logger.debug('Error getting TV: {0}'.format(str(error)))
             return None
 
     def toInt(self, n):
@@ -49,7 +58,8 @@ class FiiCrowler:
 
     def getInfo(self, re):
         logger.debug('getInfo')
-        ib = self.driver.find_element_by_id(re)
+        ib = GET(self.driver, By.ID, re)
+        #ib = self.driver.find_element_by_id(re)
         items = [self.getTV(i) for i in ib.find_elements_by_class_name('item')]
         return {i[0]: i[1] for i in items if i is not None}
 
@@ -111,7 +121,8 @@ class FiiCrowler:
             fii['code'] = fii_code
             fii['url'] = fii_url
             fii['id'] = fii_code
-            fii['name'] = self.driver.find_element_by_id('fund-name').text
+            fii['name'] = GET(self.driver, By.ID, 'fund-name').text
+            #fii['name'] = self.driver.find_element_by_id('fund-name').text
             fii.update(self.getInfo('informations--basic'))
             fii.update(self.getExtraInfo())
             fii.update(self.getInfo('informations--indexes'))

@@ -73,7 +73,9 @@ if __name__ == '__main__':
         parser = buildOptParser()
         (opt, args) = parser.parse_args()
         # logging
-        logging.basicConfig(level=getattr(logging, opt.loglevel.upper()))
+        FORMAT = '%(asctime)s %(levelname)s %(module)s %(message)s'
+        logging.basicConfig(level=getattr(logging, opt.loglevel.upper()), 
+            format=FORMAT)
         # Database 
         db = FiiPostgres(opt.dbconn)
         # Crowler from internet

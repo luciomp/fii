@@ -35,7 +35,9 @@ class Report:
     def __init__(self):
         self.erros = None
         self.erroshdr = ['Erro', 'Qnt', 'Codigo']
+        self.generalhdr = ['Setor', 'Qnt', 'DY', 'DY 10M', 'DY Ano', 'P/VPA']
+        self.fiihdr = ['Codigo', 'Tipo', 'Setor', 'Cotacao', 'DY', 'DY 10M', 'DY Ano', 'P/VPA', 'Link', 'Nota']
+        self.general = None
         self.subtipos = None
-        self.subtiposhdr = ['Setor', 'Qnt', 'DY', 'DY 10M', 'P/VPA']
         self.recomendacoes = None
-        self.recomendacoeshdr = ['Codigo', 'Tipo', 'Setor', 'DY', 'DY 10M', 'P/VPA', 'Link', 'Nota']
+        self.my = None

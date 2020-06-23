@@ -88,7 +88,7 @@ class FiiCrowler:
         for row in tbody.find_elements_by_tag_name('tr'):
             colums = [c.text for c in row.find_elements_by_tag_name('td')]
             revenues.append({
-                'dt': datetime.strptime(colums[1], '%d/%m/%y').date(),
+                'dt': datetime.strptime(colums[0], '%d/%m/%y').date(),
                 'quotation': self.toFloat(colums[2]),
                 'revenue': self.toFloat(colums[4])
             })

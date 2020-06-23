@@ -51,6 +51,8 @@ def makeReport(db):
     r.erros = db.getErrors()
     r.subtipos = db.getSubtipos()
     r.recomendacoes = db.getRecomendacoes()
+    r.my = db.getMyFiis()
+    r.general = db.getGeneral()
     return r
 
 def buildOptParser():

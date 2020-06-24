@@ -17,14 +17,14 @@ create table fii (
 	vpa float,
 	cotacao float,
 	pvpa float
-)
+);
 
 create table errors (
 	id serial not null primary key,
 	codigoexec text not null,
 	codigo text not null,
 	msg text not null
-)
+);
 
 create table rendimento (
 	id serial not null primary key,
@@ -32,7 +32,7 @@ create table rendimento (
 	dtpagamento date not null,
 	cotacao float not null,
 	rendimento float not null
-)
+);
 
 CREATE OR REPLACE VIEW rendimentoultimos10meses AS
 	select

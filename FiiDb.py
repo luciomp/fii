@@ -173,7 +173,6 @@ class FiiPostgres:
                 from
                     fiiultimaexec
                 where
-                    tipo <> 'papel' and 
                     subtipo <> 'desenvolvimento' and
                     dy10m >= 6.6 and 
                     Ma < 0.35 and

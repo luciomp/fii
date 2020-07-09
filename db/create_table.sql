@@ -37,25 +37,27 @@ create table rendimento (
 CREATE OR REPLACE VIEW rendimentoultimos10meses AS
 	select
 		fii.id as id,
-		sum(rendimento.rendimento)/fii.cotacao as dy
+		sum(rendimento.rendimento) / fii.cotacao as dy
 	from
 		fii
 	inner join
 		rendimento on fii.id = rendimento.fii
 	where
 		dtpagamento > now() - interval '10 months'
+		and fii.cotacao <> 0
 	group by fii.id;
 
 CREATE VIEW rendimentoano AS
 	select
 		fii.id as id,
-		sum(rendimento.rendimento)/fii.cotacao as dy
+		sum(rendimento.rendimento) / fii.cotacao as dy
 	from
 		fii
 	inner join
 		rendimento on fii.id = rendimento.fii
 	where
 		extract('year' from dtpagamento) = extract('year' from now())
+		and fii.cotacao <> 0
 	group by
 		fii.id;
 
@@ -68,6 +70,8 @@ create view amplituderendimento AS
 		fii
 	inner join
 		rendimento on fii.id = rendimento.fii
+	where
+		avg(rendimento) <> 0
 	group by
 		fii.id;
 
